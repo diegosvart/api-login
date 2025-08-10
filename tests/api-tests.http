@@ -1,0 +1,123 @@
+# API LOGIN - TESTS CON REST CLIENT
+# =====================================
+# Instrucciones:
+# 1. Asegúrate de que el servidor esté corriendo (npm run dev)
+# 2. Haz clic en "Send Request" que aparece sobre cada ### 
+# 3. Los resultados aparecerán en una nueva pestaña
+# 4. Copia el token del registro/login para usar en endpoints protegidos
+
+### 1. Health Check - Verificar que el servidor esté funcionando
+GET http://localhost:3000/health
+
+###
+
+### 2. Register User - Crear un nuevo usuario
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "vscodeuser",
+  "email": "vscode@test.com", 
+  "password": "VSCode123!",
+  "firstName": "VS",
+  "lastName": "Code"
+}
+
+###
+
+### 3. Register User - Ejemplo con usuario diferente
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "testuser2025",
+  "email": "test2025@example.com", 
+  "password": "Test123456!",
+  "firstName": "Test",
+  "lastName": "User"
+}
+
+###
+
+### 4. Login - Obtener token de autenticación
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "vscode@test.com",
+  "password": "VSCode123!"
+}
+
+###
+
+### 5. Login Alternativo - Con segundo usuario
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "test2025@example.com",
+  "password": "Test123456!"
+}
+
+###
+
+### 6. Get Profile - ENDPOINT PROTEGIDO (reemplaza TOKEN_AQUI con token real)
+GET http://localhost:3000/api/auth/profile
+Authorization: Bearer TOKEN_AQUI
+Content-Type: application/json
+
+###
+
+### 7. Update Profile - ENDPOINT PROTEGIDO (reemplaza TOKEN_AQUI con token real)
+PUT http://localhost:3000/api/auth/profile
+Authorization: Bearer TOKEN_AQUI
+Content-Type: application/json
+
+{
+  "firstName": "Updated",
+  "lastName": "Name",
+  "email": "vscode@test.com"
+}
+
+###
+
+### 8. Logout - ENDPOINT PROTEGIDO (reemplaza TOKEN_AQUI con token real)
+POST http://localhost:3000/api/auth/logout
+Authorization: Bearer TOKEN_AQUI
+Content-Type: application/json
+
+###
+
+### 9. Test Validación - Registro con datos inválidos (debería fallar)
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "ab",
+  "email": "invalid-email",
+  "password": "123"
+}
+
+###
+
+### 10. Test Validación - Login con credenciales incorrectas (debería fallar)
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "vscode@test.com",
+  "password": "WrongPassword123!"
+}
+
+###
+
+### 11. Test Sin Autorización - Acceso sin token (debería fallar con 401)
+GET http://localhost:3000/api/auth/profile
+Content-Type: application/json
+
+###
+
+### 12. Test Token Inválido - Con token falso (debería fallar con 401)
+GET http://localhost:3000/api/auth/profile
+Authorization: Bearer fake-token-123456789
+Content-Type: application/json

@@ -1,0 +1,87 @@
+### ===========================================
+### 🔧 DEBUG API TESTS - STEP BY STEP
+### ===========================================
+
+### 1. Health Check - Verificar servidor
+GET http://localhost:3000/health
+Accept: application/json
+
+###
+
+### 2. Root endpoint - Verificar rutas básicas
+GET http://localhost:3000/
+Accept: application/json
+
+###
+
+### 3. Registro de usuario DEBUG
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "1debug2025",
+  "email": "1debug-2025@example.com",
+  "password": "Debug123456!",
+  "firstName": "1Debug",
+  "lastName": "1User"
+}
+
+###
+
+### 4. Login para obtener token DEBUG
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "1debug-2025@example.com",
+  "password": "Debug123456!"
+}
+
+###
+
+### 5. 🎯 ENDPOINT CRÍTICO - Profile (AQUÍ FALLA)
+### ⚠️ REEMPLAZA EL TOKEN CON EL OBTENIDO EN STEP 4
+GET http://localhost:3000/api/auth/profile
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJ1c2VyXzE3NTQ3OTUwNDc5NjdfeWlleXFzaG0yIiwiZW1haWwiOiIxZGVidWctMjAyNUBleGFtcGxlLmNvbSIsImlhdCI6MTc1NDc5NTEwOCwiZXhwIjoxNzU0ODgxNTA4fQ.7F7jCkaAWjaJF83vGAD_VYr55BIiF4M_QtyTQBRuvXc
+Accept: application/json
+
+###
+
+### 6. Test con token inválido (para probar error handling)
+GET http://localhost:3000/api/auth/profile
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJ1c2VyXzE3NTQ3OTUwNDc5NjdfeWlleXFzaG0yIiwiZW1haWwiOiIxZGVidWctMjAyNUBleGFtcGxlLmNvbSIsImlhdCI6MTc1NDc5NTEwOCwiZXhwIjoxNzU0ODgxNTA4fQ.7F7jCkaAWjaJF83vGAD_VYr55BIiF4M_QtyTQBRuvXT
+Accept: application/json
+
+###
+
+### 7. Test sin header de autorización
+GET http://localhost:3000/api/auth/profile
+Accept: application/json
+
+###
+
+### 8. Test con formato incorrecto de Authorization
+GET http://localhost:3000/api/auth/profile
+Authorization: InvalidFormat eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+Accept: application/json
+
+###
+
+### 9. Update Profile (también requiere auth)
+PUT http://localhost:3000/api/auth/profile
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJ1c2VyXzE3NTQ3OTUwNDc5NjdfeWlleXFzaG0yIiwiZW1haWwiOiIxZGVidWctMjAyNUBleGFtcGxlLmNvbSIsImlhdCI6MTc1NDc5NTEwOCwiZXhwIjoxNzU0ODgxNTA4fQ.7F7jCkaAWjaJF83vGAD_VYr55BIiF4M_QtyTQBRuvXc
+Content-Type: application/json
+
+{
+  "firstName": "DebugUpdated",
+  "lastName": "UserUpdated"
+}
+
+###
+
+### 10. Logout
+POST http://localhost:3000/api/auth/logout
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJ1c2VyXzE3NTQ3OTUwNDc5NjdfeWlleXFzaG0yIiwiZW1haWwiOiIxZGVidWctMjAyNUBleGFtcGxlLmNvbSIsImlhdCI6MTc1NDc5NTEwOCwiZXhwIjoxNzU0ODgxNTA4fQ.7F7jCkaAWjaJF83vGAD_VYr55BIiF4M_QtyTQBRuvXc
+Accept: application/json
+
+###

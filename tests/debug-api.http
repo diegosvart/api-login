@@ -1,0 +1,48 @@
+### Health Check
+GET http://localhost:3000/health
+
+###
+
+### Root Endpoint
+GET http://localhost:3000/
+
+###
+
+### Register User
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "debug2025",
+  "email": "debug2025@example.com",
+  "password": "Debug123456!",
+  "firstName": "Debug",
+  "lastName": "User"
+}
+
+###
+
+### Login User
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "debug2025@example.com",
+  "password": "Debug123456!"
+}
+
+###
+
+### Get Profile (Protected)
+GET http://localhost:3000/api/auth/profile
+Authorization: Bearer TOKEN_PLACEHOLDER
+Content-Type: application/json
+
+###
+
+### Logout (Protected)
+POST http://localhost:3000/api/auth/logout
+Authorization: Bearer TOKEN_PLACEHOLDER
+Content-Type: application/json
+
+###
