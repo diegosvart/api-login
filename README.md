@@ -190,3 +190,4 @@ src/
 ---
 
 Este proyecto demuestra la aplicación práctica de **Algoritmos y Estructuras de Datos** en un sistema de producción real, combinando conocimiento teórico con implementación de nivel empresarial.
+developed by deVmc.
