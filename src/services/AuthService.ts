@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import { User, CreateUserDTO, UpdateUserDTO, UserResponse } from '../models/User';
-import { IUserRepository, MockUserRepository } from '../repositories/UserRepository';
+import { IUserRepository, PostgreSQLUserRepository } from '../repositories/UserRepository';
 
 export interface RegisterResponse {
   success: boolean;
@@ -16,10 +16,11 @@ export interface LoginResponse {
 
 export class AuthService {
   private userRepository: IUserRepository;
-  private readonly saltRounds = 12;
+  private readonly saltRounds = parseInt(process.env.BCRYPT_ROUNDS || '12');
 
   constructor(userRepository?: IUserRepository) {
-    this.userRepository = userRepository || new MockUserRepository();
+    // Use PostgreSQL repository by default, allow override for testing
+    this.userRepository = userRepository || new PostgreSQLUserRepository();
   }
 
   async register(userData: CreateUserDTO): Promise<RegisterResponse> {
@@ -105,6 +106,14 @@ export class AuthService {
         };
       }
 
+      // Update last login timestamp
+      try {
+        await this.userRepository.updateLastLogin(user.id);
+      } catch (error) {
+        console.warn('Warning: Could not update last login:', error);
+        // Continue with login process even if this fails
+      }
+
       // Return user without password
       const userResponse: UserResponse = {
         id: user.id,
@@ -114,7 +123,8 @@ export class AuthService {
         lastName: user.lastName,
         isActive: user.isActive,
         createdAt: user.createdAt,
-        updatedAt: user.updatedAt
+        updatedAt: user.updatedAt,
+        lastLogin: user.lastLogin
       };
 
       return {

@@ -3,12 +3,31 @@ import cors from 'cors';
 import helmet from 'helmet';
 import authRoutes from './routes/auth';
 import { config } from 'dotenv';
+import { testConnection } from './config/database';
 
 // Load environment variables
 config();
 
 const app: Application = express();
 const PORT = process.env.PORT || 3000;
+
+// Test database connection on startup
+const initializeDatabase = async () => {
+  try {
+    console.log('🔄 Conectando a PostgreSQL...');
+    const isConnected = await testConnection();
+
+    if (!isConnected) {
+      console.error('❌ No se pudo conectar a PostgreSQL');
+      process.exit(1);
+    }
+
+    console.log('✅ PostgreSQL conectado exitosamente');
+  } catch (error) {
+    console.error('❌ Error inicializando base de datos:', error);
+    process.exit(1);
+  }
+};
 
 // Security middleware
 app.use(helmet());
@@ -23,25 +42,41 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Debug middleware
-app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
-  console.log('Headers:', req.headers);
-  console.log('Body:', req.body);
-  next();
-});
+// Debug middleware (solo en desarrollo)
+if (process.env.NODE_ENV === 'development') {
+  app.use((req, res, next) => {
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+    if (req.body && Object.keys(req.body).length > 0) {
+      console.log('Body:', req.body);
+    }
+    next();
+  });
+}
 
 // Routes
 app.use('/api/auth', authRoutes);
 
-// Health check endpoint
-app.get('/health', (req: Request, res: Response) => {
-  res.status(200).json({
-    status: 'OK',
-    timestamp: new Date().toISOString(),
-    service: 'API Login',
-    version: '1.0.0',
-  });
+// Health check endpoint with database status
+app.get('/health', async (req: Request, res: Response) => {
+  try {
+    const dbStatus = await testConnection();
+    res.status(200).json({
+      status: 'OK',
+      timestamp: new Date().toISOString(),
+      service: 'API Login',
+      version: '1.0.0',
+      database: dbStatus ? 'Connected' : 'Disconnected'
+    });
+  } catch (error) {
+    res.status(503).json({
+      status: 'Service Unavailable',
+      timestamp: new Date().toISOString(),
+      service: 'API Login',
+      version: '1.0.0',
+      database: 'Error',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
 });
 
 // Basic route
@@ -83,11 +118,37 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   });
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Login API Server running on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`Health check: http://localhost:${PORT}/health`);
+// Start server with database initialization
+const startServer = async () => {
+  try {
+    // Initialize database connection
+    await initializeDatabase();
+
+    // Start HTTP server
+    app.listen(PORT, () => {
+      console.log(`🚀 Login API Server running on port ${PORT}`);
+      console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`🔍 Health check: http://localhost:${PORT}/health`);
+      console.log(`📡 API Base: http://localhost:${PORT}/api`);
+    });
+  } catch (error) {
+    console.error('❌ Failed to start server:', error);
+    process.exit(1);
+  }
+};
+
+// Handle graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('🛑 Received SIGTERM, shutting down gracefully');
+  process.exit(0);
 });
+
+process.on('SIGINT', () => {
+  console.log('🛑 Received SIGINT, shutting down gracefully');
+  process.exit(0);
+});
+
+// Start the server
+startServer();
 
 export default app;

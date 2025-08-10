@@ -8,6 +8,7 @@ export interface User {
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
+  lastLogin?: Date;
 }
 
 export interface CreateUserDTO {
@@ -22,6 +23,7 @@ export interface UpdateUserDTO {
   firstName?: string;
   lastName?: string;
   email?: string;
+  username?: string;
 }
 
 export interface UserResponse {
@@ -33,4 +35,5 @@ export interface UserResponse {
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
+  lastLogin?: Date;
 }
